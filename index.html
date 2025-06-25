@@ -847,4 +847,315 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p class="footer-text
+            <p class="footer-text">Created by Arnold Baraka • Vision powered by Nairobi's streets • Developed with ❤️ + caffeine + drift dreams</p>
+            <div class="social-links">
+                <a href="#">🔗</a>
+                <a href="#">📧</a>
+                <a href="#">📱</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            // Replace with your Firebase project configuration
+            apiKey: "your-api-key-here",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+
+        // Countdown Timer Logic
+        function updateCountdown() {
+            const now = new Date().getTime();
+            
+            // Calculate next Saturday (every other Saturday)
+            const today = new Date();
+            const nextSaturday = new Date();
+            nextSaturday.setDate(today.getDate() + ((6 - today.getDay()) % 7));
+            nextSaturday.setHours(14, 0, 0, 0); // 2 PM EAT
+            
+            // If today is Saturday and it's past 2 PM, move to next Saturday
+            if (today.getDay() === 6 && today.getHours() >= 14) {
+                nextSaturday.setDate(nextSaturday.getDate() + 7);
+            }
+            
+            const distance = nextSaturday.getTime() - now;
+            
+            if (distance > 0) {
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            } else {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+            }
+        }
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+
+        // Car Registration Form Handler
+        document.getElementById('carRegistrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const carData = {
+                driverName: formData.get('driverName') || e.target.querySelector('input[placeholder="Enter your racing name"]').value,
+                make: e.target.querySelector('select').value,
+                model: e.target.querySelector('input[placeholder*="Corolla"]').value,
+                year: parseInt(e.target.querySelector('input[type="number"][min="1990"]').value),
+                horsepower: parseInt(e.target.querySelector('input[placeholder="250"]').value),
+                upgradeLevel: e.target.querySelectorAll('select')[1].value,
+                registrationDate: new Date().toISOString(),
+                wins: 0,
+                points: 0,
+                raceHistory: []
+            };
+
+            try {
+                // Check if user is authenticated
+                const user = auth.currentUser;
+                if (!user) {
+                    // For demo purposes, we'll create an anonymous user
+                    await auth.signInAnonymously();
+                }
+
+                // Calculate car class based on horsepower and upgrade level
+                let carClass = 'Novice';
+                const hp = carData.horsepower;
+                const upgrade = carData.upgradeLevel;
+                
+                if (hp >= 400 || upgrade === 'track-ready') {
+                    carClass = 'Pro';
+                } else if (hp >= 250 || upgrade === 'turbocharged') {
+                    carClass = 'Sport';
+                } else if (hp >= 180 || upgrade === 'tuned') {
+                    carClass = 'Street';
+                }
+                
+                carData.carClass = carClass;
+
+                // Save to Firestore
+                await db.collection('registeredCars').add({
+                    ...carData,
+                    userId: auth.currentUser.uid
+                });
+
+                // Update real-time leaderboard
+                await rtdb.ref('leaderboard/' + auth.currentUser.uid).set({
+                    driverName: carData.driverName,
+                    car: `${carData.make} ${carData.model}`,
+                    wins: carData.wins,
+                    points: carData.points,
+                    level: carData.upgradeLevel,
+                    class: carClass
+                });
+
+                // Show success message
+                showNotification('🏎️ Car registered successfully! Welcome to ARNO DRIVE!', 'success');
+                e.target.reset();
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                showNotification('❌ Registration failed. Please try again.', 'error');
+            }
+        });
+
+        // Authentication Functions
+        async function signInUser() {
+            try {
+                const result = await auth.signInAnonymously();
+                console.log('User signed in:', result.user.uid);
+                loadUserData();
+            } catch (error) {
+                console.error('Sign-in error:', error);
+            }
+        }
+
+        // Load user data and update UI
+        async function loadUserData() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                // Load user's registered cars
+                const carsSnapshot = await db.collection('registeredCars')
+                    .where('userId', '==', user.uid)
+                    .get();
+                
+                if (!carsSnapshot.empty) {
+                    // User has registered cars, update UI accordingly
+                    updateUserInterface(carsSnapshot.docs);
+                }
+
+                // Listen to real-time leaderboard updates
+                rtdb.ref('leaderboard').on('value', (snapshot) => {
+                    updateLeaderboard(snapshot.val());
+                });
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Update leaderboard with real-time data
+        function updateLeaderboard(leaderboardData) {
+            if (!leaderboardData) return;
+
+            const tbody = document.querySelector('.leaderboard-table tbody');
+            const entries = Object.entries(leaderboardData)
+                .map(([key, value]) => value)
+                .sort((a, b) => b.points - a.points)
+                .slice(0, 10); // Top 10
+
+            tbody.innerHTML = entries.map((entry, index) => {
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+                return `
+                    <tr>
+                        <td class="${rankClass}">#${index + 1}</td>
+                        <td>${entry.driverName}</td>
+                        <td>${entry.car}</td>
+                        <td>${entry.wins}</td>
+                        <td>${entry.points.toLocaleString()}</td>
+                        <td>${entry.level}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--neon-green)' : type === 'error' ? 'var(--neon-red)' : 'var(--neon-blue)'};
+                color: var(--dark-bg);
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Race simulation (for demo purposes)
+        function simulateRace() {
+            const races = [
+                'Circuit One Challenge',
+                'Turbo East Showdown',
+                'MegaDrive Marathon'
+            ];
+            
+            const randomRace = races[Math.floor(Math.random() * races.length)];
+            showNotification(`🏁 ${randomRace} starting in 2 minutes!`, 'info');
+        }
+
+        // Initialize app
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadUserData();
+            } else {
+                signInUser();
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Demo race simulation every 30 seconds
+        setInterval(simulateRace, 30000);
+
+        // Add dynamic effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate feature cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all feature cards
+            document.querySelectorAll('.feature-card, .track-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Add fadeInUp animation
+            const fadeStyle = document.createElement('style');
+            fadeStyle.textContent = `
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(fadeStyle);
+        });
+    </script>
