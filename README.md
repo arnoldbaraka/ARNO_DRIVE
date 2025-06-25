@@ -3,7 +3,7 @@
 **ARNO (Autonomous Racing Network Operations)** is a futuristic, Nairobi-based car racing match platform where drivers connect, compete, and climb the leaderboard — all from their own registered rides. The platform leverages real-world maps (like Nairobi Bypass highways) and futuristic tech concepts for weekly bi-race matchmaking.
 
 ## 🌍 Live Demo
-[https://yourusername.github.io/arno-drive](https://yourusername.github.io/arno-drive) *(replace with your actual GitHub Pages URL)*
+[https://arnoldbaraka.github.io/arno-drive](https://arnoldbaraka.github.io/arno-drive) *(replace with your actual GitHub Pages URL)*
 
 ---
 
