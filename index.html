@@ -1,59 +1,1004 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ARNO DRIVE</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARNO DRIVE - Ultimate Street Racing Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-red: #ff0040;
+            --neon-blue: #00d4ff;
+            --neon-purple: #b700ff;
+            --neon-green: #00ff88;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            transition: transform 0.1s;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 64, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(183, 0, 255, 0.05) 0%, transparent 50%);
+            animation: bgPulse 10s ease-in-out infinite;
+            z-index: -2;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            width: 100%;
+            padding: 20px 50px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s;
+        }
+
+        nav.scrolled {
+            padding: 10px 50px;
+            background: rgba(10, 10, 10, 0.9);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--neon-red), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 0, 64, 0.5);
+            animation: logoGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.3s;
+            padding: 5px 10px;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-red);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: 6rem;
+            margin-bottom: 20px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            animation: heroText 2s ease-out;
+        }
+
+        @keyframes heroText {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .glitch {
+            position: relative;
+            color: #fff;
+            text-shadow: 
+                0 0 10px var(--neon-red),
+                0 0 20px var(--neon-red),
+                0 0 30px var(--neon-red);
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch1 0.5s infinite;
+            color: var(--neon-blue);
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch2 0.5s infinite;
+            color: var(--neon-purple);
+            z-index: -2;
+        }
+
+        @keyframes glitch1 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 2px); }
+            40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, -2px); }
+            60% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 2px); }
+            80% { clip-path: inset(10% 0 80% 0); transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch2 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(80% 0 10% 0); transform: translate(2px, -2px); }
+            40% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 2px); }
+            60% { clip-path: inset(30% 0 50% 0); transform: translate(2px, -2px); }
+            80% { clip-path: inset(60% 0 20% 0); transform: translate(-2px, 2px); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+        }
+
+        /* CTA Buttons */
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-red), var(--neon-purple));
+            color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(255, 0, 64, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 0, 64, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid var(--neon-blue);
+            border-radius: 30px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--neon-blue);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Race Routes Section */
+        .routes-section {
+            padding: 100px 50px;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .route-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .route-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--neon-purple) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .route-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .route-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-purple);
+            box-shadow: 0 10px 30px rgba(183, 0, 255, 0.3);
+        }
+
+        .route-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--neon-green);
+        }
+
+        .route-details {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .route-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 50px;
+            background: rgba(183, 0, 255, 0.05);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: scale(1.05);
+            border-color: var(--neon-red);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, var(--neon-red), var(--neon-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--neon-green);
+        }
+
+        /* Leaderboard Section */
+        .leaderboard-section {
+            padding: 100px 50px;
+            position: relative;
+        }
+
+        .leaderboard {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255, 0, 64, 0.1);
+            transform: translateX(10px);
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--neon-red);
+            width: 50px;
+        }
+
+        .player-info {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .player-car {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .player-score {
+            font-size: 1.3rem;
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px;
+            text-align: center;
+            background: var(--glass-bg);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .social-links a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--neon-red);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            nav {
+                padding: 15px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .routes-section,
+            .features-section,
+            .leaderboard-section {
+                padding: 50px 20px;
+            }
+        }
+
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-text {
+            font-size: 2rem;
+            color: var(--neon-red);
+            animation: loaderPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: particleFloat 10s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-10vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>ARNO DRIVE</h1>
-    <p>Match. Race. Dominate Nairobi's Streets.</p>
-  </header>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-trail"></div>
 
-  <main>
-    <section id="register">
-      <h2>Register Your Ride</h2>
-      <form id="carForm">
-        <input id="driverName" type="text" placeholder="Driver Name" required />
-        <input id="email" type="text" placeholder="Email" required />
-        <input id="make" type="text" placeholder="Car Make (e.g. Subaru)" required />
-        <input id="model" type="text" placeholder="Model (e.g. WRX)" required />
-        <input id="year" type="number" placeholder="Year" required />
-        <input id="hp" type="number" placeholder="Horsepower" required />
-        <select id="classSelector" required>
-          <option value="">Select Car Class</option>
-          <option value="sport">Sport</option>
-          <option value="tuner">Tuner</option>
-          <option value="suv">SUV</option>
-          <option value="luxury">Luxury</option>
-        </select>
-        <button type="submit">Register</button>
-      </form>
-      <div id="result"></div>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-text">INITIALIZING ARNO DRIVE...</div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="bg-animation"></div>
+    <div class="grid-bg"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">ARNO DRIVE</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#routes">Routes</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+                <li><a href="#garage">Garage</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="glitch" data-text="ARNO DRIVE">ARNO DRIVE</h1>
+            <p class="hero-subtitle">Match. Race. Dominate Nairobi's Streets.</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="startRace()">START RACING</button>
+                <button class="btn btn-secondary" onclick="showGarage()">MY GARAGE</button>
+            </div>
+        </div>
     </section>
 
-    <section id="routes">
-      <h2>Featured Race Routes</h2>
-      <ul>
-        <li><strong>Circuit One:</strong> Southern Bypass → Lang'ata Link (12 km)</li>
-        <li><strong>Turbo East:</strong> Eastern Bypass → Thika Highway (20 km)</li>
-        <li><strong>Night Pulse:</strong> CBD Night Loop (10 km)</li>
-        <li><strong>MegaDrive:</strong> Ruiru → Limuru (32 km)</li>
-      </ul>
+    <!-- Race Routes -->
+    <section class="routes-section" id="routes">
+        <h2 class="section-title">LEGENDARY ROUTES</h2>
+        <div class="routes-grid">
+            <div class="route-card">
+                <h3 class="route-name">Circuit One</h3>
+                <p class="route-details">Southern Bypass → Lang'ata Link</p>
+                <div class="route-stats">
+                    <div class="stat">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">KM</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">180</div>
+                        <div class="stat-label">MAX SPEED</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4.2</div>
+                        <div class="stat-label">DIFFICULTY</div>
+                    </div>
+                </div>
+            </div>
+            <div class="route-card">
+                <h3 class="route-name">Turbo East</h3>
+                <p class="route-details">Eastern Bypass → Thika Highway</p>
+                <div class="route-stats">
+                    <div class="stat">
+                        <div class="stat-value">20</div>
+                        <div class="stat-label">KM</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">220</div>
+                        <div class="stat-label">MAX SPEED</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4.8</div>
+                        <div class="stat-label">DIFFICULTY</div>
+                    </div>
+                </div>
+            </div>
+            <div class="route-card">
+                <h3 class="route-name">Night Pulse</h3>
+                <p class="route-details">CBD Night Loop</p>
+                <div class="route-stats">
+                    <div class="stat">
+                        <div class="stat-value">10</div>
+                        <div class="stat-label">KM</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">140</div>
+                        <div class="stat-label">MAX SPEED</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">3.5</div>
+                        <div class="stat-label">DIFFICULTY</div>
+                    </div>
+                </div>
+            </div>
+            <div class="route-card">
+                <h3 class="route-name">MegaDrive</h3>
+                <p class="route-details">Ruiru → Limuru Challenge</p>
+                <div class="route-stats">
+                    <div class="stat">
+                        <div class="stat-value">32</div>
+                        <div class="stat-label">KM</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">240</div>
+                        <div class="stat-label">MAX SPEED</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">5.0</div>
+                        <div class="stat-label">DIFFICULTY</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <section id="next">
-      <h2>Next Race Weekend</h2>
-      <div id="countdown"></div>
+    <!-- Features -->
+    <section class="features-section" id="features">
+        <h2 class="section-title">RACING FEATURES</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏁</div>
+                <h3 class="feature-title">Real-Time Racing</h3>
+                <p>Race against players in real-time with our advanced matchmaking system</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚗</div>
+                <h3 class="feature-title">Custom Garage</h3>
+                <p>Build and customize your dream racing machine with endless options</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3 class="feature-title">Championships</h3>
+                <p>Compete in weekly tournaments and climb the global leaderboard</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">Crypto Rewards</h3>
+                <p>Earn cryptocurrency rewards for your racing achievements</p>
+            </div>
+        </div>
     </section>
-  </main>
 
-  <footer>
-    <p>© 2025 ARNO DRIVE | Powered by the Streets</p>
-  </footer>
+    <!-- Leaderboard -->
+    <section class="leaderboard-section" id="leaderboard">
+        <h2 class="section-title">TOP RACERS</h2>
+        <div class="leaderboard">
+            <div class="leaderboard-item">
+                <div class="rank">#1</div>
+                <div class="player-info">
+                    <div class="player-name">SpeedDemon254</div>
+                    <div class="player-car">Nissan GT-R R35</div>
+                </div>
+                <div class="player-score">12,450 pts</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">#2</div>
+                <div class="player-info">
+                    <div class="player-name">NairobiDrifter</div>
+                    <div class="player-car">Toyota Supra MK4</div>
+                </div>
+                <div class="player-score">11,200 pts</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">#3</div>
+                <div class="player-info">
+                    <div class="player-name">TurboKenya</div>
+                    <div class="player-car">Subaru WRX STI</div>
+                </div>
+                <div class="player-score">10,850 pts</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">#4</div>
+                <div class="player-info">
+                    <div class="player-name">MadarakaExpress</div>
+                    <div class="player-car">BMW M3 E92</div>
+                </div>
+                <div class="player-score">9,600 pts</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">#5</div>
+                <div class="player-info">
+                    <div class="player-name">KilimanjaroRacer</div>
+                    <div class="player-car">Mazda RX-7 FD</div>
+                </div>
+                <div class="player-score">8,900 pts</div>
+            </div>
+        </div>
+    </section>
 
-  <script src="app.js"></script>
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 ARNO DRIVE. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#">📱</a>
+            <a href="#">🐦</a>
+            <a href="#">📷</a>
+            <a href="#">🎮</a>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorTrail = document.querySelector('.cursor-trail');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorTrail.style.left = e.clientX + 'px';
+                cursorTrail.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2000);
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Interactive Functions
+        function startRace() {
+            alert('🏁 RACE MODE ACTIVATED! Connect your vehicle to start matchmaking...');
+            // Here you would implement the actual race start logic
+        }
+
+        function showGarage() {
+            alert('🚗 GARAGE LOADING... Your custom rides will appear here!');
+            // Here you would implement the garage view
+        }
+
+        // Route Card Hover Effects
+        const routeCards = document.querySelectorAll('.route-card');
+        routeCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) rotateY(5deg)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotateY(0)';
+            });
+        });
+
+        // Dynamic Leaderboard Updates
+        function updateLeaderboard() {
+            const scores = document.querySelectorAll('.player-score');
+            scores.forEach(score => {
+                const currentScore = parseInt(score.textContent);
+                const change = Math.floor(Math.random() * 100) - 50;
+                const newScore = currentScore + change;
+                score.textContent = newScore + ' pts';
+                
+                if (change > 0) {
+                    score.style.color = 'var(--neon-green)';
+                } else {
+                    score.style.color = 'var(--neon-red)';
+                }
+                
+                setTimeout(() => {
+                    score.style.color = 'var(--neon-blue)';
+                }, 1000);
+            });
+        }
+
+        // Simulate live updates every 5 seconds
+        setInterval(updateLeaderboard, 5000);
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close any open modals
+            }
+            if (e.key === 'Enter' && e.ctrlKey) {
+                startRace();
+            }
+        });
+
+        // Page Visibility API for performance
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Pause animations when tab is not visible
+                document.querySelectorAll('.particle').forEach(p => {
+                    p.style.animationPlayState = 'paused';
+                });
+            } else {
+                // Resume animations
+                document.querySelectorAll('.particle').forEach(p => {
+                    p.style.animationPlayState = 'running';
+                });
+            }
+        });
+
+        // Interactive Route Selection
+        document.querySelectorAll('.route-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove previous selection
+                document.querySelectorAll('.route-card').forEach(c => {
+                    c.style.borderColor = 'var(--glass-border)';
+                });
+                
+                // Highlight selected route
+                this.style.borderColor = 'var(--neon-red)';
+                this.style.boxShadow = '0 0 30px rgba(255, 0, 64, 0.6)';
+                
+                // Show route details
+                const routeName = this.querySelector('.route-name').textContent;
+                console.log(`Selected route: ${routeName}`);
+            });
+        });
+
+        // Add countdown timer for next race
+        function updateCountdown() {
+            const now = new Date();
+            const nextSaturday = new Date();
+            
+            // Calculate next Saturday
+            const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7;
+            nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+            nextSaturday.setHours(20, 0, 0, 0); // 8 PM
+            
+            const timeDiff = nextSaturday - now;
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+            
+            // You would update a countdown element here
+            console.log(`Next race in: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+        }
+
+        setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html>
