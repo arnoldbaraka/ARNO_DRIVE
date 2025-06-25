@@ -856,30 +856,32 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+    <!-- Firebase SDK v9+ -->
+    <script type="module">
+        // Import Firebase v9+ modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getDatabase, ref, set, onValue, push } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js';
 
-    <script>
-        // Firebase Configuration
+        // Your Firebase configuration
         const firebaseConfig = {
-            // Replace with your Firebase project configuration
-            apiKey: "your-api-key-here",
-            authDomain: "your-project.firebaseapp.com",
-            databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "your-app-id"
+            apiKey: "AIzaSyDzIe2zvvrh0C9EhT0dD3LNzEEyYVYhyjY",
+            authDomain: "arno-drive.firebaseapp.com",
+            projectId: "arno-drive",
+            storageBucket: "arno-drive.firebasestorage.app",
+            messagingSenderId: "71503234707",
+            appId: "1:71503234707:web:ec051db60a12860d7a2f66",
+            measurementId: "G-9P85VK8Q8X"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const rtdb = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const rtdb = getDatabase(app);
+        const analytics = getAnalytics(app);
 
         // Countdown Timer Logic
         function updateCountdown() {
@@ -926,7 +928,7 @@
             
             const formData = new FormData(e.target);
             const carData = {
-                driverName: formData.get('driverName') || e.target.querySelector('input[placeholder="Enter your racing name"]').value,
+                driverName: e.target.querySelector('input[placeholder="Enter your racing name"]').value,
                 make: e.target.querySelector('select').value,
                 model: e.target.querySelector('input[placeholder*="Corolla"]').value,
                 year: parseInt(e.target.querySelector('input[type="number"][min="1990"]').value),
@@ -942,8 +944,8 @@
                 // Check if user is authenticated
                 const user = auth.currentUser;
                 if (!user) {
-                    // For demo purposes, we'll create an anonymous user
-                    await auth.signInAnonymously();
+                    // Sign in anonymously
+                    await signInAnonymously(auth);
                 }
 
                 // Calculate car class based on horsepower and upgrade level
@@ -962,24 +964,32 @@
                 carData.carClass = carClass;
 
                 // Save to Firestore
-                await db.collection('registeredCars').add({
+                const docRef = await addDoc(collection(db, 'registeredCars'), {
                     ...carData,
                     userId: auth.currentUser.uid
                 });
 
                 // Update real-time leaderboard
-                await rtdb.ref('leaderboard/' + auth.currentUser.uid).set({
+                await set(ref(rtdb, 'leaderboard/' + auth.currentUser.uid), {
                     driverName: carData.driverName,
                     car: `${carData.make} ${carData.model}`,
                     wins: carData.wins,
                     points: carData.points,
                     level: carData.upgradeLevel,
-                    class: carClass
+                    class: carClass,
+                    registrationId: docRef.id
                 });
 
                 // Show success message
                 showNotification('🏎️ Car registered successfully! Welcome to ARNO DRIVE!', 'success');
                 e.target.reset();
+
+                // Track registration event
+                // logEvent(analytics, 'car_registered', {
+                //     car_make: carData.make,
+                //     car_class: carClass,
+                //     upgrade_level: upgrade
+                // });
 
             } catch (error) {
                 console.error('Registration error:', error);
@@ -990,7 +1000,7 @@
         // Authentication Functions
         async function signInUser() {
             try {
-                const result = await auth.signInAnonymously();
+                const result = await signInAnonymously(auth);
                 console.log('User signed in:', result.user.uid);
                 loadUserData();
             } catch (error) {
@@ -1005,17 +1015,20 @@
 
             try {
                 // Load user's registered cars
-                const carsSnapshot = await db.collection('registeredCars')
-                    .where('userId', '==', user.uid)
-                    .get();
+                const q = query(
+                    collection(db, 'registeredCars'), 
+                    where('userId', '==', user.uid)
+                );
+                const querySnapshot = await getDocs(q);
                 
-                if (!carsSnapshot.empty) {
+                if (!querySnapshot.empty) {
                     // User has registered cars, update UI accordingly
-                    updateUserInterface(carsSnapshot.docs);
+                    updateUserInterface(querySnapshot.docs);
                 }
 
                 // Listen to real-time leaderboard updates
-                rtdb.ref('leaderboard').on('value', (snapshot) => {
+                const leaderboardRef = ref(rtdb, 'leaderboard');
+                onValue(leaderboardRef, (snapshot) => {
                     updateLeaderboard(snapshot.val());
                 });
 
@@ -1047,6 +1060,12 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        // Update user interface with registered cars
+        function updateUserInterface(carDocs) {
+            // You can add logic here to show user's registered cars
+            console.log('User has registered cars:', carDocs.length);
         }
 
         // Notification system
