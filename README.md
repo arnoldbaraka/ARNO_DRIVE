@@ -43,46 +43,8 @@ https://arnoldbaraka.github.io/ARNO_DRIVE/
 
 ---
 
-## 📁 Project Structure
-```
-arno-drive/
-│
-├── index.html       # Main UI structure
-├── style.css        # Futuristic neon UI
-├── app.js           # Match logic + countdown + form handling
-└── README.md        # This file
-```
 
----
-
-## 📦 Setup Instructions
-
-### 1. Clone This Project
-```bash
-git clone https://github.com/yourusername/arno-drive.git
-cd arno-drive
-```
-
-### 2. Customize Firebase (Optional)
-Add Firebase Auth to enable real signups.
-
-### 3. Deploy to GitHub Pages
-- Push code to your repo
-- Enable GitHub Pages in `Settings → Pages`
-- Choose source: `main`, folder: `/`
-
-### 4. Done! 🎉
-Your futuristic racing platform is live!
-
----
-
-## 🔮 Roadmap
-- Firebase Auth (register, login, logout)
-- Car profile pages (show win history, race replays)
-- Fans base: comments, cheering, public rankings
-- NFT upgrades + in-platform rewards
-- Sponsor-based race jackpots
-
+``
 ---
 
 ## 🤖 Credits
