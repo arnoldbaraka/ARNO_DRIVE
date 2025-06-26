@@ -1,0 +1,133 @@
+:root {
+  --primary: #00c6ff;
+  --secondary: #0072ff;
+  --accent: #ff00e6;
+  --dark: #0a0e17;
+  --darker: #05080f;
+}
+
+.holographic-card {
+  background: rgba(10, 14, 23, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 
+    0 0 25px rgba(0, 198, 255, 0.25),
+    0 0 50px rgba(0, 114, 255, 0.15),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  position: relative;
+}
+
+.holographic-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--primary), 
+    var(--accent), 
+    var(--secondary));
+  z-index: -1;
+  border-radius: 22px;
+  animation: hologram-pulse 6s infinite alternate;
+}
+
+.holographic-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 0 35px rgba(0, 198, 255, 0.4),
+    0 0 70px rgba(0, 114, 255, 0.25),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes hologram-pulse {
+  0% { opacity: 0.2; }
+  100% { opacity: 0.4; }
+}
+
+.holographic-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  border-radius: 50px;
+  color: white;
+  padding: 12px 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  box-shadow: 
+    0 6px 20px rgba(0, 114, 255, 0.4),
+    0 0 15px rgba(0, 198, 255, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20px;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(25deg);
+  transition: all 0.7s;
+}
+
+.holographic-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 
+    0 10px 25px rgba(0, 114, 255, 0.6),
+    0 0 20px rgba(0, 198, 255, 0.5);
+}
+
+.holographic-btn:hover::after {
+  left: 120%;
+}
+
+.driver-marker {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.7);
+  animation: pulse 1.5s infinite alternate;
+}
+
+.driver-icon {
+  font-size: 24px;
+  transform: translateY(-2px);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+.live-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff0033;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 0, 51, 0.7);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
